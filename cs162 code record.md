@@ -285,9 +285,36 @@ what happend when theard blocks on I/O?
 
 		​    it may no winner forever......Thread A and B overwriting element **i** forever and it never go below -10 or go beyond 10
 
-		
 
-		
+
+​	Loccks provide two atomic operations:
+
+​			--**acquire(&mylock)**-wait until lock is free, then mark it as busy(or to say calling thread **holds** the lock after it returns)
+
+​			--**release(mylock)**-mark lock as free (can only be called by a thread that holding the lock, after it returns ,  the calling thread on longer holds the lock)
+
+
+
+Usage:
+
+<img src="https://i.328888.xyz/2023/03/06/hAfwq.png" alt="hAfwq.png" border="0" />
+
+it works on both singal core and mutiple cores ,but the code is doing release and acquire the lock for most of the time ,it's what we called **Busy Waiting** mode,which will waste a lot of CPU cycles...not good anyway.  
+
+Semaphoes 
+
+1.  kind of generalized lock
+2. finition : a Semaphore has a non-negative integer value and supports the following two operate 
+	- Down() or P()
+	- Up() or V() 
+
+​	Usage
+
+- Mutual Exclusion(initial value = 1)(binary Semaphore)
+- Scheduling Constraints(initial value = 0)
+-  
+
+
 
 
 
