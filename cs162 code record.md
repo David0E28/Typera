@@ -361,5 +361,9 @@ Consumer() {
 
 ```cpp
 //This is a test file
+<<<<<<< HEAD
 change from typera
+=======
+change from git
+>>>>>>> 74125d6e4b8e5156d67cbf24121ab0cb4ee1c27f
 ```
