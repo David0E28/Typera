@@ -297,16 +297,37 @@ what happend when theard blocks on I/O?
 
 Usage:
 
+
+
+ 
+
+```c
+mutex buf_lock = <initially unlocked>
+Producer(item) {
+    acquire(&buf_lock)
+    while(buffer full) {}; // Wait for a freeslot
+    enqueue(item);
+    release(&buf_lock);
+}
+
+Consumer() {
+  acquire(&buf_lock);
+  while (buffer empty) {};
+  item = dequeue(); //Wait for arrival
+  release(&buf_lock);
+  return item;
+  }//worest code,while buffer empty or full,the lock is dead
+```
+
+
+
+
+
 <img src="https://i.328888.xyz/2023/03/06/hAfwq.png" alt="hAfwq.png" border="0" />
 
 it works on both singal core and mutiple cores ,but the code is doing release and acquire the lock for most of the time ,it's what we called **Busy Waiting** mode,which will waste a lot of CPU cycles...not good anyway.  
 
-Semaphoes 
 
-1.  kind of generalized lock
-2. finition : a Semaphore has a non-negative integer value and supports the following two operate 
-	- Down() or P()
-	- Up() or V() 
 
 ​	Usage
 
@@ -337,29 +358,99 @@ process B() {
 
 Hardware context switch supported in x86
 
- 
+
+
+Semaphores 
+
+1.  kind of generalized lock
+2.  Definition : a Semaphore has a non-negative integer value and supports the following two operate 
+	- Down() or P()   //proberen
+	- Up() or V()       //verhogen
+
+and only those two operations,and they are atomic
+
+Correctness Constraints
+
+Only one thread can manipulate buffer queue at a time(mutual exclusion)(互斥)
 
 ```c
-mutex buf_lock = <initially unlocked>
-Producer(item) {
-    acquire(&buf_lock)
-    while(buffer full) {}; // Wait for a freeslot
-    enqueue(item);
-    release(&buf_lock);
+//buying milk problem
+if(nomilk) {
+	if(noNote) {
+        //if Thread checked and switched here...
+		leave Note;//lock
+		buy milk;
+		remove note; //unlock
+	}
 }
+//still too much milk but only occasionally---Thread can get context switched after checking milk and note but before buying milk!!
+```
 
-Consumer() {
-  acquire(&buf_lock);
-  while (buffer empty) {};
-  intm = dequeue(); //Wait for arrival
-  release(&buf_lock);
-  return item;
-  }
+how to improve???
+
+```c
+//Thread A                                //Thread B
+leave note A;						leave note B;
+while (Note B) {					if(noNote A) {
+    								 if (no milk){
+                                         	buy milk;
+                                        }
+                                      }
+                                      remove note B;
+    do nothing;
+}
+if (noMilk) {
+    buy milk;
+}
+remove note A;
+//it works!
+//but it is a little complicated,and while A is doing nothing(waiting),it is consuming CPU time
+```
+
+with lock ,its going to be really easy...
+
+```c
+acquire(&milklock);
+if (noMilk)  buy milk;
+realease (&milklock);
+//other thread wait if locked,sleep if wait too long
+
+```
+
+The different between busy-waiting and semaphore-down is:
+
+- busy-waiting consuming CPU time
+- semaphore-down puts thread to sleeping list
+
+**ALL Synchronization involves waiting**
+
+​		 
+
+When to enable interrupt in Lock
+
+```c
+Acquire() {
+disable interrupts;
+    if(value == busy) {
+        put on a wait queue;
+        Go to Sleep();
+        //<------------enable here!
+    } else {
+        value = BUSY;
+    }
+    enable interrupts;
+}
+//but how can a thread enable inerrupts after go to sleep???
+
 ```
 
 
 
-```cpp
-//This is a test file
-down
-```
+<img src="https://i.328888.xyz/2023/03/09/SpbJq.png" alt="SpbJq.png" border="0" />
+
+
+
+B put itself to sleep by calling a system call, system call in kernel put B into sleep, but it is B who called system call...
+
+keep doing system call is going to make everything slow...how can we make it better
+
