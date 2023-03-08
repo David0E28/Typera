@@ -312,9 +312,50 @@ Semaphoes
 
 - Mutual Exclusion(initial value = 1)(binary Semaphore)
 - Scheduling Constraints(initial value = 0)
--  
+
+## Synchronization 2 : Semaphores  Lock Implementation  Atomic Instructions
+
+​	recall
+
+```c
+process A() {
+    B() 
+  }
+
+process B() {
+    while (TRUE) {
+        yield();//thread B give up cpu 
+      }
+  }
+```
 
 
+
+<img src="https://i.328888.xyz/2023/03/08/SHQXF.png" alt="SHQXF.png" border="0" />
+
+
+
+Hardware context switch supported in x86
+
+ 
+
+```c
+mutex buf_lock = <initially unlocked>
+Producer(item) {
+    acquire(&buf_lock)
+    while(buffer full) {}; // Wait for a freeslot
+    enqueue(item);
+    release(&buf_lock);
+}
+
+Consumer() {
+  acquire(&buf_lock);
+  while (buffer empty) {};
+  intm = dequeue(); //Wait for arrival
+  release(&buf_lock);
+  return item;
+  }
+```
 
 
 
