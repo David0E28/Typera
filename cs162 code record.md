@@ -440,9 +440,13 @@ disable interrupts;
     }
     enable interrupts;
 }
-//but how can a thread enable inerrupts after go to sleep???
+//but which thread enable inerrupts after go to sleep???
 
 ```
+
+- responsibility of the next thread to re-enable interrupts
+- when the sleeping thread wakes up, returns  to acquire and re-enable interrupts.
+- 我们无需在 Go to sleep（）处主动enable interrupts，因为另一个thread会enable interrupts after current thread goes to sleep.(关中断禁止了抢占，但是没有禁止当前任务进行主动调度)
 
 
 
@@ -453,4 +457,36 @@ disable interrupts;
 B put itself to sleep by calling a system call, system call in kernel put B into sleep, but it is B who called system call...
 
 keep doing system call is going to make everything slow...how can we make it better
+
+## Synchronization 3: Atomic Instructions Monitors  Readers/Writers
+
+Alternative: atomic instruction sequences
+
+​		These instructions read a value and write a new value atomically
+
+​		**Hardware** is responsible for implementing this correctly
+
+Using Compare&Swap without lock 
+
+```c
+compare&swap (&address, reg1, reg2) {
+	if (reg1 == M[address] {  //if there is no conflict
+        M[address] = rsg2;
+        return success;
+    }else {
+        return false;
+	 }
+}
+ //if thousands of threads doing same thing simultaneously 
+addToQueue(&object) 
+do {			    	//repeat until no conflict
+    load r1<--M(root)   //get ptr to current head
+    set  r1-->M[object] //Save link in new object
+   } until (compare&swap (&root, r1, object))//atomic without lock   ,faster
+        
+```
+
+​		
+
+ 
 
