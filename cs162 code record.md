@@ -234,7 +234,7 @@ what happend when theard blocks on I/O?
 
 	How do we initialize TCB and Stack?
 
-	- Stacke pointer made to point at stack.
+	- Stack pointer made to point at stack.
 
 	- Pc return address-->Os(asm)routine ThreadRoot()
 
@@ -287,7 +287,7 @@ what happend when theard blocks on I/O?
 
 
 
-​	Loccks provide two atomic operations:
+​	Locks provide two atomic operations:
 
 ​			--**acquire(&mylock)**-wait until lock is free, then mark it as busy(or to say calling thread **holds** the lock after it returns)
 
@@ -490,8 +490,33 @@ do {			    	//repeat until no conflict
 
  
 
-```
 
 
-```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Scheduling3:DeadLock
+
+
 
